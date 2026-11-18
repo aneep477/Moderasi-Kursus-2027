@@ -10,7 +10,7 @@
  */
 
 // Versi backend. Kemas kini nilai ini setiap kali Code.gs berubah.
-const VERSI_BACKEND = 'v4.0.0-sampel-terbuka';
+const VERSI_BACKEND = 'v5.0.0-borang-bpmpb';
 
 const NAMA_HELAIAN = {
   PENSYARAH: 'Pensyarah',
@@ -22,7 +22,7 @@ const NAMA_HELAIAN = {
 };
 
 const LAJUR = {
-  Pensyarah: ['email', 'nama', 'peranan', 'passwordHash', 'aktif', 'tarikhDicipta'],
+  Pensyarah: ['email', 'nama', 'peranan', 'passwordHash', 'aktif', 'tarikhDicipta', 'kodBorang'],
   SkripInduk: ['angkaGiliran', 'emelPensyarah', 'namaPensyarah', 'kumpulan', 'fasaModerasi', 'markahPemeriksa', 'urlSkrip', 'emelP1', 'emelP2', 'tarikhMuatNaik', 'namaFail'],
   HasilSemakan: ['id', 'angkaGiliran', 'emelPensyarah', 'namaPensyarah', 'fasaModerasi', 'markahPemeriksa', 'hp1_a1', 'hp1_a2', 'hp1_b1', 'hp1_b2', 'hp1_c1', 'hp1_c2', 'hp5_d1', 'hp5_d2', 'hp5_d3', 'hp5_d4', 'markahModerasiP1', 'perbezaanP1', 'markahModerasiP2', 'perbezaanP2', 'markahAkhir', 'dataLakaran', 'tarikhKemaskini', 'rubrikJson'],
   Konfigurasi: ['kunci', 'nilai', 'catatan'],
@@ -125,7 +125,8 @@ function dapatDataUntukPengguna(pengguna) {
       email: String(r.email).trim(),
       nama: String(r.nama || ''),
       peranan: String(r.peranan || ''),
-      aktif: benar(r.aktif)
+      aktif: benar(r.aktif),
+      kodBorang: String(r.kodBorang || '').trim()
     }))
     .filter(r => r.email);
 
@@ -554,9 +555,9 @@ function setupSistem() {
     const h = hashKataLaluan('Tukar123!');
     const kini = new Date();
     ss.getSheetByName(NAMA_HELAIAN.PENSYARAH).getRange(2, 1, 3, LAJUR.Pensyarah.length).setValues([
-      ['admin@ipgm.edu.my', 'Admin Demo', 'Admin', h, true, kini],
-      ['kj@ipgm.edu.my', 'Ketua Jabatan Demo', 'Ketua Jabatan', h, true, kini],
-      ['pensyarah@ipgm.edu.my', 'Pensyarah Demo', 'Pensyarah', h, true, kini]
+      ['admin@ipgm.edu.my', 'Admin Demo', 'Admin', h, true, kini, ''],
+      ['kj@ipgm.edu.my', 'Ketua Jabatan Demo', 'Ketua Jabatan', h, true, kini, ''],
+      ['pensyarah@ipgm.edu.my', 'Pensyarah Demo', 'Pensyarah', h, true, kini, '']
     ]);
   }
 
