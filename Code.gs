@@ -10,7 +10,7 @@
  */
 
 // Versi backend. Kemas kini nilai ini setiap kali Code.gs berubah.
-const VERSI_BACKEND = 'v5.0.0-borang-bpmpb';
+const VERSI_BACKEND = 'v6.0.0-sampel-lakaran-peribadi';
 
 const NAMA_HELAIAN = {
   PENSYARAH: 'Pensyarah',
@@ -137,7 +137,14 @@ function dapatDataUntukPengguna(pengguna) {
   if (!isAdmin(pengguna)) {
     skrip = skrip.filter(s => bolehSemak(pengguna, s));
     const angkaSet = new Set(skrip.map(s => String(s.angkaGiliran).trim()));
-    hasil = hasil.filter(h => angkaSet.has(String(h.angkaGiliran).trim()));
+    // Sampel: setiap pensyarah hanya melihat semakan dan lakaran sendiri.
+    // Kes Ekstrem: semakan dan lakaran dikongsi antara pemeriksa yang berkaitan.
+    hasil = hasil.filter(h => {
+      if (!angkaSet.has(String(h.angkaGiliran).trim())) return false;
+      const s = skrip.find(x => sama(x.angkaGiliran, h.angkaGiliran));
+      if (s && ialahSampel(s)) return sama(h.emelPensyarah, pengguna.email);
+      return true;
+    });
   }
 
   let rubrikConfig = [];
@@ -174,6 +181,7 @@ function ambilLakaran(pengguna, fileId) {
   if (!isAdmin(pengguna)) {
     const skrip = bacaJadual(NAMA_HELAIAN.SKRIP).find(s => sama(s.angkaGiliran, hasil.angkaGiliran));
     if (!skrip || !bolehSemak(pengguna, skrip)) throw new Error('Akses ditolak.');
+    if (ialahSampel(skrip) && !sama(hasil.emelPensyarah, pengguna.email)) throw new Error('Akses ditolak.');
   }
   return DriveApp.getFileById(id).getBlob().getDataAsString('UTF-8');
 }
