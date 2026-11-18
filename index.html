@@ -509,6 +509,11 @@
       });
     }
 
+    function urlDenganAuth(params) {
+      const q = new URLSearchParams(Object.assign({}, params, { email: dataSesi.email, password: dataSesi.password }));
+      return urlAPI + '?' + q.toString();
+    }
+
     function semakStatusAdmin() {
       if (!dataSesi || !dataSesi.peranan) return false;
       const p = dataSesi.peranan.toString().trim().toLowerCase();
@@ -520,7 +525,7 @@
       const toast = document.createElement('div');
       const gaya = { success: 'bg-emerald-50 border-emerald-200 text-emerald-800', error: 'bg-red-50 border-red-200 text-red-800', warning: 'bg-amber-50 border-amber-200 text-amber-800', info: 'bg-blue-50 border-blue-200 text-blue-800' };
       toast.className = `transform translate-y-10 opacity-0 transition-all duration-300 max-w-xs w-full p-4 rounded-xl shadow-lg border text-xs font-bold flex items-center gap-3 ${gaya[jenis]}`;
-      toast.innerHTML = `<div class="leading-snug">${mesej}</div>`;
+      const teksToast = document.createElement('div'); teksToast.className = 'leading-snug'; teksToast.textContent = mesej; toast.appendChild(teksToast);
       container.appendChild(toast); requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
       setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
@@ -590,7 +595,8 @@
     }
 
     function tarikDataDariSheets() {
-      fetch(urlAPI).then(r => r.json()).then(data => {
+      fetch(urlDenganAuth({ action: 'getData' })).then(r => r.json()).then(data => {
+        if (data.status === 'error') { tunjukToast(data.message || 'Gagal memuat data.', 'error'); return; }
         dbPensyarah = data.pensyarah || []; 
         dbSkripInduk = data.skripInduk || []; 
         dbHasilSemakan = data.hasilSemakan || [];
@@ -798,8 +804,8 @@
     function simpanKategoriP2Admin(angka) {
       const s = document.getElementById('selKat_' + angka); if(!s) return; s.disabled = true;
       panggilAPISelamat({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angka, kategoriBaru: s.value })
-      .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); tarikDataDariSheets(); } })
-      .catch(err => { s.disabled = false; tunjukToast("Ralat.", "error"); });
+      .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal simpan kategori: " + (res.message || "Ralat pelayan"), "error"); } })
+      .catch(err => { s.disabled = false; tunjukToast("Ralat: " + err.message, "error"); });
     }
 
     function laksanaCetakanPilihan(selectJenisId) {
@@ -1024,7 +1030,7 @@
       if (teks.indexOf("DRIVEFILE:") === 0) {
         const fileId = teks.substring("DRIVEFILE:".length).trim();
         try {
-          const resp = await fetch(urlAPI + "?action=fetchLakaranProxy&id=" + fileId);
+          const resp = await fetch(urlDenganAuth({ action: 'fetchLakaranProxy', id: fileId }));
           const isi = await resp.text();
           if (isi.startsWith("ERROR")) return "{}";
           return isi;
@@ -1065,7 +1071,7 @@
           try {
             let isi = r.dataLakaran;
             if (isi.indexOf("DRIVEFILE:") === 0) {
-              const res = await fetch(urlAPI + "?action=fetchLakaranProxy&id=" + isi.replace("DRIVEFILE:", "").trim());
+              const res = await fetch(urlDenganAuth({ action: 'fetchLakaranProxy', id: isi.replace("DRIVEFILE:", "").trim() }));
               isi = await res.text();
             }
             const d = JSON.parse(isi);
@@ -1082,7 +1088,7 @@
 
       if(!skrip.urlSkrip) { if(pl) pl.innerHTML = `<div class="text-red-500 font-bold mt-4 text-xs">Tiada fail PDF untuk pelajar ini.</div>`; return; }
 
-      fetch(urlAPI + "?action=fetchPdfProxy&id=" + skrip.urlSkrip).then(r => r.text()).then(b64 => {
+      fetch(urlDenganAuth({ action: 'fetchPdfProxy', id: skrip.urlSkrip })).then(r => r.text()).then(b64 => {
           const raw = atob(b64); const arr = new Uint8Array(raw.length); for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
           pdfjsLib.getDocument({ data: arr }).promise.then(pdf => {
             pdfDoc = pdf; pageTotal = pdf.numPages; 
@@ -1212,9 +1218,11 @@
 
       const payload = {
         action: "simpanSemakan",
+        email: dataSesi.email,
+        password: dataSesi.password,
         angkaGiliran: pelajarAktif.angkaGiliran,
-        emelPensyarah: dataSesi.email,
-        fasaModerasi: pelajarAktif.fasaModerasi,
+        fasaSemasa: fasaSemasa,
+        markahModerasiP2: document.getElementById('markahD')?.value || '',
         markahPemeriksa: markahA_asal,
         hp1_a1: document.getElementById('rubric_hp1_a1')?.value || 0,
         hp1_a2: document.getElementById('rubric_hp1_a2')?.value || 0,
@@ -1237,8 +1245,8 @@
       panggilAPISelamat(payload).then(res => {
         if (btn) { btn.innerText = "✓ Tersimpan!"; setTimeout(() => { btn.innerText = "Simpan Semakan"; btn.disabled = false; }, 2000); }
         if (res.status === "success") { tunjukToast("Rekod disimpan.", "success"); tarikDataDariSheets(); }
-        else { tunjukToast("Gagal simpan.", "error"); }
-      }).catch(err => { if (btn) btn.disabled = false; tunjukToast("Ralat.", "error"); });
+        else { tunjukToast("Gagal simpan: " + (res.message || "Ralat pelayan"), "error"); }
+      }).catch(err => { if (btn) btn.disabled = false; tunjukToast("Ralat: " + err.message, "error"); });
     }
 
     async function cetakSkripDanContenganGlobal() {
@@ -1329,10 +1337,15 @@
           markahPemeriksa: markahA,
           fileData: e.target.result
         }).then(res => {
-          if (btn) { btn.innerText = "Berjaya!"; setTimeout(() => { btn.innerText = "Muat Naik Skrip Sekarang"; btn.disabled = false; }, 2000); }
-          if (res.status === "success") { tunjukToast("Skrip dimuat naik!", "success"); tarikDataDariSheets(); }
-          else { tunjukToast("Gagal muat naik.", "error"); }
-        }).catch(err => { if (btn) btn.disabled = false; tunjukToast("Ralat.", "error"); });
+          if (res.status === "success") {
+            if (btn) { btn.innerText = "Berjaya!"; setTimeout(() => { btn.innerText = "Muat Naik Skrip Sekarang"; btn.disabled = false; }, 2000); }
+            tunjukToast(res.message || "Skrip dimuat naik!", "success");
+            tarikDataDariSheets();
+          } else {
+            if (btn) { btn.innerText = "Muat Naik Skrip Sekarang"; btn.disabled = false; }
+            tunjukToast("Gagal muat naik: " + (res.message || "Ralat pelayan"), "error");
+          }
+        }).catch(err => { if (btn) btn.disabled = false; tunjukToast("Ralat: " + err.message, "error"); });
       };
       reader.readAsDataURL(fileObj);
     }
