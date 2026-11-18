@@ -444,7 +444,7 @@
     }
 
     // Versi frontend. Kemas kini nilai ini setiap kali index.html berubah.
-    const VERSI_FRONTEND = 'v4.0.0-sampel-terbuka';
+    const VERSI_FRONTEND = 'v5.0.0-borang-bpmpb';
     console.info('Sistem Moderasi MPU7011', VERSI_FRONTEND);
 
     let dbRubrik = [];
@@ -802,6 +802,95 @@
       panggilAPISelamat({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angka, kategoriBaru: s.value })
       .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal simpan kategori: " + (res.message || "Ralat pelayan"), "error"); } })
       .catch(err => { s.disabled = false; tunjukToast("Ralat: " + err.message, "error"); });
+    }
+
+
+    // Lajur P pada borang BPMPB (kodBorang diisi admin dalam helaian Pensyarah)
+    const BORANG_LAJUR = ['P1', 'P2', 'P5', 'P6', 'P8', 'P9', 'P9b'];
+
+    function escHtml(v) {
+      return String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function markahSemakanRekod(rekod) {
+      if (!rekod) return '';
+      const pilihan = [rekod.markahModerasiP1, rekod.markahModerasiP2, rekod.markahAkhir];
+      const nilai = pilihan.find(v => v !== undefined && v !== null && v !== '');
+      return nilai === undefined ? '' : nilai;
+    }
+
+    function cetakRingkasanPensyarah() {
+      const bekas = document.getElementById('bulkPrintContainer');
+      if (!bekas) return;
+      const senarai = dbSkripInduk.slice().sort((a, b) => String(a.angkaGiliran).localeCompare(String(b.angkaGiliran), 'ms', { numeric: true }));
+      if (senarai.length === 0) { tunjukToast("Tiada skrip untuk dicetak.", "warning"); return; }
+
+      const peta = {};
+      dbPensyarah.forEach(p => { if (p.kodBorang) peta[p.kodBorang] = p; });
+
+      const kepala = BORANG_LAJUR.map(kod => {
+        const p = peta[kod];
+        const namaPendek = p ? String(p.nama || '').split(' ')[0].toUpperCase() : '';
+        return '<th>' + escHtml(kod.replace(/b$/, '')) + '<br><span style="font-weight:normal">(' + escHtml(namaPendek) + ')</span></th>';
+      }).join('');
+
+      const barisHtml = senarai.map(skrip => {
+        const semakan = dbHasilSemakan.filter(h => String(h.angkaGiliran) === String(skrip.angkaGiliran));
+        const emel = e => String(e || '').toLowerCase();
+        const sel = BORANG_LAJUR.map(kod => {
+          const p = peta[kod];
+          if (!p) return '<td></td>';
+          const rekod = semakan.find(h => emel(h.emelPensyarah) === emel(p.email));
+          return '<td>' + escHtml(markahSemakanRekod(rekod)) + '</td>';
+        }).join('');
+
+        // Markah penyelarasan: semakan P2 jika ada, jika tidak semakan P1, jika tidak mana-mana semakan
+        const rP2 = semakan.find(h => skrip.emelP2 && emel(h.emelPensyarah) === emel(skrip.emelP2));
+        const rP1 = semakan.find(h => skrip.emelP1 && emel(h.emelPensyarah) === emel(skrip.emelP1)) || semakan[0];
+        const akhir = [rP2, rP1].map(r => (r && r.markahAkhir !== undefined && r.markahAkhir !== '') ? r.markahAkhir : null).find(v => v !== null);
+
+        return '<tr><td class="kiri">' + escHtml(skrip.angkaGiliran) + '</td><td></td>' + sel +
+               '<td><strong>' + escHtml(akhir === undefined || akhir === null ? '' : akhir) + '</strong></td></tr>';
+      }).join('');
+
+      const kursus = escHtml(dbKonfigurasi.namaSubjek || '');
+      const kod = escHtml(dbKonfigurasi.kodSubjek || 'MPU7011');
+
+      bekas.innerHTML = `
+        <div class="borang-bpmpb">
+          <style>
+            @page { size: A4 landscape; margin: 10mm; }
+            .borang-bpmpb { font-family: Arial, sans-serif; color: #000; font-size: 10px; }
+            .borang-bpmpb table { width: 100%; border-collapse: collapse; }
+            .borang-bpmpb th, .borang-bpmpb td { border: 1px solid #000; padding: 4px; text-align: center; }
+            .borang-bpmpb th { background: #f1f5f9; font-weight: bold; }
+            .borang-bpmpb .kiri { text-align: left; font-family: monospace; font-weight: bold; }
+          </style>
+          <div style="text-align:center; font-weight:bold;">
+            <div>INSTITUT PENDIDIKAN GURU MALAYSIA</div>
+            <div>KAMPUS : DARULAMAN</div>
+            <div style="margin-top:6px; font-size:12px;">BORANG REKOD PENYELARASAN MARKAH PENTAKSIRAN BERTERUSAN (BPMPB)</div>
+          </div>
+          <div style="margin:8px 0; font-weight:bold;">
+            KURSUS: ${kursus} &nbsp;&nbsp; KOD KURSUS: ${kod} &nbsp;&nbsp; PROGRAM: PDPP &nbsp;&nbsp; SEMESTER/PERINGKAT: I/I
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th rowspan="2">ANGKA GILIRAN CALON</th>
+                <th colspan="8">MARKAH PENTAKSIRAN BERTERUSAN (KB) / PEMERIKSA (P)</th>
+                <th rowspan="2">MARKAH PENYELARASAN</th>
+              </tr>
+              <tr><th>PB</th>${kepala}</tr>
+            </thead>
+            <tbody>${barisHtml}</tbody>
+          </table>
+          <p style="font-size:9px; margin-top:6px;">*Petunjuk: PB=Pentaksiran Berterusan. P=Pemeriksa</p>
+        </div>`;
+
+      bekas.style.display = 'block';
+      tunjukToast("Menjana borang BPMPB...", "info");
+      setTimeout(() => { window.print(); bekas.style.display = 'none'; bekas.innerHTML = ''; }, 500);
     }
 
     function laksanaCetakanPilihan(selectJenisId) {
