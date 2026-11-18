@@ -9,6 +9,9 @@
  *    Selepas kemas kini kod, WAJIB pilih New version. URL /exec kekal sama.
  */
 
+// Versi backend. Kemas kini nilai ini setiap kali Code.gs berubah.
+const VERSI_BACKEND = 'v3.0.0-rubrik-dinamik';
+
 const NAMA_HELAIAN = {
   PENSYARAH: 'Pensyarah',
   SKRIP: 'SkripInduk',
@@ -147,7 +150,8 @@ function dapatDataUntukPengguna(pengguna) {
     hasilSemakan: hasil,
     konfigurasi: bacaKonfigurasi(),
     rubrikConfig: rubrikConfig,
-    rubrikRalat: rubrikRalat
+    rubrikRalat: rubrikRalat,
+    versi: VERSI_BACKEND
   };
 }
 
