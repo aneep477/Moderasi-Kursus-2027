@@ -1318,11 +1318,12 @@
 
       const reader = new FileReader();
       reader.onload = e => {
-        panggilAPISelamat({
-          action: "adminUploadScript",
-          adminEmail: dataSesi.email,
-          email: dataSesi.email,
-          namaPensyarah: dataSesi.nama,
+          panggilAPISelamat({
+            action: "adminUploadScript",
+            adminEmail: dataSesi.email,
+            adminPassword: dataSesi.password,
+            email: dataSesi.email,
+            namaPensyarah: dataSesi.nama,
           angkaGiliran: studentId,
           fasaModerasi: fasaDisimpan,
           markahPemeriksa: markahA,
