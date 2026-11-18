@@ -444,7 +444,7 @@
     }
 
     // Versi frontend. Kemas kini nilai ini setiap kali index.html berubah.
-    const VERSI_FRONTEND = 'v5.0.0-borang-bpmpb';
+    const VERSI_FRONTEND = 'v6.0.0-sampel-lakaran-peribadi';
     console.info('Sistem Moderasi MPU7011', VERSI_FRONTEND);
 
     let dbRubrik = [];
@@ -1137,6 +1137,7 @@
       
       lakaranOrangLain = {}; ulasanOrangLain = {}; lakaranSesiIni = {}; ulasanSemuaHalaman = {}; pdfDoc = null; pageNum = 1;
 
+      const sampelIni = String(skrip.fasaModerasi || '').indexOf('Kelompok') === 0;
       const rekodSkripIni = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
       for (const r of rekodSkripIni) {
         if(r.dataLakaran) {
@@ -1151,7 +1152,7 @@
             if (r.emelPensyarah && r.emelPensyarah.toLowerCase() === dataSesi.email.toLowerCase()) {
               lakaranSesiIni = JSON.parse(JSON.stringify(lak || {}));
               ulasanSemuaHalaman = JSON.parse(JSON.stringify(comms || {}));
-            } else {
+            } else if (!sampelIni) {
               for (const pg in lak) { lakaranOrangLain[pg] = (lakaranOrangLain[pg] || []).concat(lak[pg]); }
             }
           } catch(e) {}
