@@ -188,79 +188,13 @@
                   </div>
                 </div>
                 
-                <!-- BORANG RUBRIK MPU3221 (HP1 & HP5) -->
+                <!-- BORANG RUBRIK (dijana daripada helaian TetapanRubrik) -->
                 <div class="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
                   <div class="bg-slate-900 text-white px-3 py-2 text-[9px] font-bold uppercase tracking-widest flex justify-between items-center">
-                    <span>Perincian Rubrik HP1 & HP5</span>
-                    <span class="text-teal-400 font-mono">Maks 40M</span>
+                    <span>Perincian Rubrik</span>
+                    <span id="maksRubrikLabel" class="text-teal-400 font-mono">Maks 40M</span>
                   </div>
-                  <div class="p-3 space-y-3 divide-y divide-slate-100">
-                    
-                    <!-- HP1 (30M) -->
-                    <div class="pt-2 first:pt-0">
-                      <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2">Tugasan 1: HP1 (Maks 30M)</p>
-                      
-                      <div class="space-y-2.5">
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">A1. Pengenalan, Konsep & Rasional (/5)</p></div>
-                          <input type="number" id="rubric_hp1_a1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">A2. Rekaan Logo & Moto (/5)</p></div>
-                          <input type="number" id="rubric_hp1_a2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">B1. Struktur AJK & Perlembagaan (/5)</p></div>
-                          <input type="number" id="rubric_hp1_b1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">B2. Takwim Aktiviti Tahunan (/5)</p></div>
-                          <input type="number" id="rubric_hp1_b2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">C1. Carta Alir & Surat Permohonan (/5)</p></div>
-                          <input type="number" id="rubric_hp1_c1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">C2. Analisis Mitigasi Risiko (/5)</p></div>
-                          <input type="number" id="rubric_hp1_c2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- HP5 (10M) -->
-                    <div class="pt-3">
-                      <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2">Tugasan 1: HP5 (Maks 10M)</p>
-                      
-                      <div class="space-y-2.5">
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D1. Kelancaran & Koheren Idea (/2.5)</p></div>
-                          <input type="number" id="rubric_hp5_d1" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D2. Justifikasi & Keyakinan Hujah (/2.5)</p></div>
-                          <input type="number" id="rubric_hp5_d2" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D3. Keaslian Idea & Laras Bahasa (/2.5)</p></div>
-                          <input type="number" id="rubric_hp5_d3" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-
-                        <div class="flex justify-between items-start gap-2">
-                          <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D4. Ketepatan Tatabahasa & APA 7 (/2.5)</p></div>
-                          <input type="number" id="rubric_hp5_d4" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
+                  <div id="borangRubrikDinamik" class="p-3 space-y-3 divide-y divide-slate-100"></div>
                   <div class="bg-teal-50 px-3 py-2.5 flex justify-between items-center border-t border-teal-100"><span class="text-[9px] font-bold text-teal-800 uppercase tracking-widest">Jumlah Terkumpul</span><span id="jumlahMarkahRubrik" class="font-mono font-bold text-teal-700 text-sm">0 / 40</span></div>
                 </div>
 
@@ -509,6 +443,61 @@
       });
     }
 
+    let dbRubrik = [];
+
+    function binaBorangRubrik() {
+      const bekas = document.getElementById('borangRubrikDinamik');
+      if (!bekas) return;
+      bekas.innerHTML = '';
+      const kumpulan = {};
+      dbRubrik.forEach(r => { (kumpulan[r.hp] = kumpulan[r.hp] || []).push(r); });
+      Object.keys(kumpulan).forEach(hp => {
+        const item = kumpulan[hp];
+        const maks = item.reduce((a, r) => a + Number(r.markah || 0), 0);
+        const blok = document.createElement('div');
+        blok.className = 'pt-2 first:pt-0';
+        const tajuk = document.createElement('p');
+        tajuk.className = 'text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2';
+        tajuk.textContent = hp + ' (Maks ' + maks + 'M)';
+        blok.appendChild(tajuk);
+        const senarai = document.createElement('div');
+        senarai.className = 'space-y-2.5';
+        item.forEach(r => {
+          const baris = document.createElement('div');
+          baris.className = 'flex justify-between items-start gap-2';
+          const kiri = document.createElement('div'); kiri.className = 'pr-2';
+          const para = document.createElement('p'); para.className = 'text-[11px] font-bold text-slate-800';
+          para.textContent = r.perincian + ' (/' + r.markah + ')';
+          kiri.appendChild(para);
+          const input = document.createElement('input');
+          input.type = 'number'; input.id = 'rubric_' + r.kod; input.min = '0'; input.max = String(r.markah); input.step = '0.5';
+          input.className = 'w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0';
+          input.addEventListener('input', kiraSkorAuto);
+          baris.appendChild(kiri); baris.appendChild(input);
+          senarai.appendChild(baris);
+        });
+        blok.appendChild(senarai);
+        bekas.appendChild(blok);
+      });
+      const label = document.getElementById('maksRubrikLabel');
+      if (label) label.textContent = 'Maks ' + dbRubrik.reduce((a, r) => a + Number(r.markah || 0), 0) + 'M';
+      kiraSkorAuto();
+    }
+
+    function nilaiRubrikDariRekod(rekod) {
+      if (!rekod) return {};
+      if (rekod.rubrikJson) { try { return JSON.parse(rekod.rubrikJson) || {}; } catch (e) { /* jatuh balik ke lajur lama */ } }
+      const o = {};
+      dbRubrik.forEach(r => { o[r.kod] = rekod[r.kod]; });
+      return o;
+    }
+
+    function nilaiRubrikSemasa() {
+      const o = {};
+      dbRubrik.forEach(r => { o[r.kod] = document.getElementById('rubric_' + r.kod)?.value || 0; });
+      return o;
+    }
+
     function urlDenganAuth(params) {
       const q = new URLSearchParams(Object.assign({}, params, { email: dataSesi.email, password: dataSesi.password }));
       return urlAPI + '?' + q.toString();
@@ -601,6 +590,9 @@
         dbSkripInduk = data.skripInduk || []; 
         dbHasilSemakan = data.hasilSemakan || [];
         dbKonfigurasi = data.konfigurasi || {};
+        dbRubrik = data.rubrikConfig || [];
+        if (data.rubrikRalat) tunjukToast("Rubrik: " + data.rubrikRalat, "warning");
+        binaBorangRubrik();
         gunakanTetapanKursus();
         
         if(semakStatusAdmin()) {
@@ -1050,11 +1042,10 @@
       const lb = document.getElementById('labelTugasSemasa'); if(lb) lb.innerText = skrip.angkaGiliran;
       const bA = document.getElementById('borangMarkahA'); if(bA) bA.value = skrip.markahPemeriksa;
       
-      const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
-      const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
-      keysHP1.concat(keysHP5).forEach(function(k) {
-        const el = document.getElementById('rubric_' + k);
-        if (el) el.value = rekod ? (rekod[k] || '') : '';
+      const nilaiR = nilaiRubrikDariRekod(rekod);
+      dbRubrik.forEach(r => {
+        const el = document.getElementById('rubric_' + r.kod);
+        if (el) el.value = (rekod && nilaiR[r.kod] !== undefined && nilaiR[r.kod] !== null) ? nilaiR[r.kod] : '';
       });
 
       const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = rekod ? (rekod.markahAkhir || skrip.markahPemeriksa) : skrip.markahPemeriksa;
@@ -1100,14 +1091,13 @@
     }
 
     function kiraSkorAuto() {
-      let total = 0; 
-      const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
-      const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
-      keysHP1.concat(keysHP5).forEach(function(k) { 
-        const el = document.getElementById('rubric_' + k); 
-        if(el) total += parseFloat(el.value) || 0; 
+      let total = 0;
+      dbRubrik.forEach(r => {
+        const el = document.getElementById('rubric_' + r.kod);
+        if (el) total += parseFloat(el.value) || 0;
       });
-      const jum = document.getElementById('jumlahMarkahRubrik'); if(jum) jum.innerText = total.toFixed(1) + ' / 40'; 
+      const maksJumlah = dbRubrik.reduce((a, r) => a + Number(r.markah || 0), 0);
+      const jum = document.getElementById('jumlahMarkahRubrik'); if(jum) jum.innerText = total.toFixed(1) + ' / ' + maksJumlah;
       const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = total.toFixed(1);
     }
 
@@ -1222,18 +1212,9 @@
         password: dataSesi.password,
         angkaGiliran: pelajarAktif.angkaGiliran,
         fasaSemasa: fasaSemasa,
+        rubrik: nilaiRubrikSemasa(),
         markahModerasiP2: document.getElementById('markahD')?.value || '',
         markahPemeriksa: markahA_asal,
-        hp1_a1: document.getElementById('rubric_hp1_a1')?.value || 0,
-        hp1_a2: document.getElementById('rubric_hp1_a2')?.value || 0,
-        hp1_b1: document.getElementById('rubric_hp1_b1')?.value || 0,
-        hp1_b2: document.getElementById('rubric_hp1_b2')?.value || 0,
-        hp1_c1: document.getElementById('rubric_hp1_c1')?.value || 0,
-        hp1_c2: document.getElementById('rubric_hp1_c2')?.value || 0,
-        hp5_d1: document.getElementById('rubric_hp5_d1')?.value || 0,
-        hp5_d2: document.getElementById('rubric_hp5_d2')?.value || 0,
-        hp5_d3: document.getElementById('rubric_hp5_d3')?.value || 0,
-        hp5_d4: document.getElementById('rubric_hp5_d4')?.value || 0,
         markahModerasiP1: markahG,
         perbezaanP1: Number((markahG - markahA_asal).toFixed(1)),
         markahAkhir: markahG,
