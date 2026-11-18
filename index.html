@@ -444,7 +444,7 @@
     }
 
     // Versi frontend. Kemas kini nilai ini setiap kali index.html berubah.
-    const VERSI_FRONTEND = 'v3.0.0-rubrik-dinamik';
+    const VERSI_FRONTEND = 'v4.0.0-sampel-terbuka';
     console.info('Sistem Moderasi MPU7011', VERSI_FRONTEND);
 
     let dbRubrik = [];
@@ -934,13 +934,7 @@
       const userEmail = (dataSesi.email || '').toLowerCase();
       const isAdminKJ = semakStatusAdmin();
 
-      const skripRelevan = dbSkripInduk.filter(s => {
-        if (isAdminKJ) return true;
-        const isLantikP1 = s.emelP1 && s.emelP1.toLowerCase() === userEmail;
-        const isLantikP2 = s.emelP2 && s.emelP2.toLowerCase() === userEmail;
-        const isPensyarahAsal = s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail;
-        return isLantikP1 || isLantikP2 || isPensyarahAsal;
-      });
+      const skripRelevan = dbSkripInduk; // pelayan sudah menapis mengikut peranan
 
       if(skripRelevan.length === 0) { 
         bekas.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Tiada skrip tugasan yang dilantik untuk anda.</div>`; 
@@ -948,7 +942,7 @@
       }
 
       skripRelevan.forEach(skrip => {
-        const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
+        const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString() && (isAdminKJ || (h.emelPensyarah || '').toLowerCase() === userEmail));
         const isAktif = pelajarAktif && pelajarAktif.angkaGiliran === skrip.angkaGiliran;
         const div = document.createElement('div');
         div.className = `flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${isAktif ? 'bg-teal-50 border-teal-300 ring-1 ring-teal-500' : 'bg-white border-slate-200 hover:bg-slate-50'}`;
@@ -977,13 +971,7 @@
       const userEmail = (dataSesi.email || '').toLowerCase();
       const isAdminKJ = semakStatusAdmin();
 
-      const skripDilepaskan = dbSkripInduk.filter(skrip => {
-        if (isAdminKJ) return true;
-        const pAsal = (skrip.emelPensyarah || '').toLowerCase();
-        const p1 = (skrip.emelP1 || '').toLowerCase();
-        const p2 = (skrip.emelP2 || '').toLowerCase();
-        return (pAsal === userEmail || p1 === userEmail || p2 === userEmail);
-      });
+      const skripDilepaskan = dbSkripInduk; // pelayan sudah menapis mengikut peranan
 
       if (skripDilepaskan.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">Tiada skrip muat naik atau tugasan moderasi bagi akaun anda.</td></tr>`;

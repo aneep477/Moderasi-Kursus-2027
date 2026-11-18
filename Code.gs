@@ -10,7 +10,7 @@
  */
 
 // Versi backend. Kemas kini nilai ini setiap kali Code.gs berubah.
-const VERSI_BACKEND = 'v3.0.0-rubrik-dinamik';
+const VERSI_BACKEND = 'v4.0.0-sampel-terbuka';
 
 const NAMA_HELAIAN = {
   PENSYARAH: 'Pensyarah',
@@ -24,7 +24,7 @@ const NAMA_HELAIAN = {
 const LAJUR = {
   Pensyarah: ['email', 'nama', 'peranan', 'passwordHash', 'aktif', 'tarikhDicipta'],
   SkripInduk: ['angkaGiliran', 'emelPensyarah', 'namaPensyarah', 'kumpulan', 'fasaModerasi', 'markahPemeriksa', 'urlSkrip', 'emelP1', 'emelP2', 'tarikhMuatNaik', 'namaFail'],
-  HasilSemakan: ['id', 'angkaGiliran', 'emelPensyarah', 'fasaModerasi', 'markahPemeriksa', 'hp1_a1', 'hp1_a2', 'hp1_b1', 'hp1_b2', 'hp1_c1', 'hp1_c2', 'hp5_d1', 'hp5_d2', 'hp5_d3', 'hp5_d4', 'markahModerasiP1', 'perbezaanP1', 'markahModerasiP2', 'perbezaanP2', 'markahAkhir', 'dataLakaran', 'tarikhKemaskini', 'rubrikJson'],
+  HasilSemakan: ['id', 'angkaGiliran', 'emelPensyarah', 'namaPensyarah', 'fasaModerasi', 'markahPemeriksa', 'hp1_a1', 'hp1_a2', 'hp1_b1', 'hp1_b2', 'hp1_c1', 'hp1_c2', 'hp5_d1', 'hp5_d2', 'hp5_d3', 'hp5_d4', 'markahModerasiP1', 'perbezaanP1', 'markahModerasiP2', 'perbezaanP2', 'markahAkhir', 'dataLakaran', 'tarikhKemaskini', 'rubrikJson'],
   Konfigurasi: ['kunci', 'nilai', 'catatan'],
   TetapanRubrik: ['kod', 'hp', 'perincian', 'markah', 'susunan'],
   LogAktiviti: ['timestamp', 'email', 'action', 'angkaGiliran', 'status', 'mesej']
@@ -134,7 +134,7 @@ function dapatDataUntukPengguna(pengguna) {
 
   // Pensyarah biasa hanya melihat skrip yang berkaitan dengannya (dan semakan bagi skrip tersebut)
   if (!isAdmin(pengguna)) {
-    skrip = skrip.filter(s => berkaitan(pengguna, s));
+    skrip = skrip.filter(s => bolehSemak(pengguna, s));
     const angkaSet = new Set(skrip.map(s => String(s.angkaGiliran).trim()));
     hasil = hasil.filter(h => angkaSet.has(String(h.angkaGiliran).trim()));
   }
@@ -160,7 +160,7 @@ function ambilPdfBase64(pengguna, fileId) {
   if (!id) throw new Error('ID fail diperlukan.');
   const skrip = bacaJadual(NAMA_HELAIAN.SKRIP).find(r => String(r.urlSkrip || '').trim() === id);
   if (!skrip) throw new Error('Fail ini tidak dikaitkan dengan mana-mana skrip.');
-  if (!isAdmin(pengguna) && !berkaitan(pengguna, skrip)) throw new Error('Akses ditolak.');
+  if (!bolehSemak(pengguna, skrip)) throw new Error('Akses ditolak.');
   return Utilities.base64Encode(DriveApp.getFileById(id).getBlob().getBytes());
 }
 
@@ -172,7 +172,7 @@ function ambilLakaran(pengguna, fileId) {
   if (!hasil) throw new Error('Rekod lakaran tidak ditemui.');
   if (!isAdmin(pengguna)) {
     const skrip = bacaJadual(NAMA_HELAIAN.SKRIP).find(s => sama(s.angkaGiliran, hasil.angkaGiliran));
-    if (!skrip || !berkaitan(pengguna, skrip)) throw new Error('Akses ditolak.');
+    if (!skrip || !bolehSemak(pengguna, skrip)) throw new Error('Akses ditolak.');
   }
   return DriveApp.getFileById(id).getBlob().getDataAsString('UTF-8');
 }
@@ -228,7 +228,7 @@ function muatNaikSkrip(pengguna, p) {
 function simpanSemakan(pengguna, p) {
   const angka = String(p.angkaGiliran || '').trim();
   const skrip = cariSkrip(angka);
-  if (!isAdmin(pengguna) && !berkaitan(pengguna, skrip)) throw new Error('Anda tidak dilantik untuk skrip ini.');
+  if (!bolehSemak(pengguna, skrip)) throw new Error('Anda tidak dilantik untuk skrip ini.');
 
   const fasaSemasa = String(p.fasaSemasa || 'P1').trim().toUpperCase() === 'P2' ? 'P2' : 'P1';
   const A = Number(skrip.markahPemeriksa) || 0;
@@ -251,6 +251,7 @@ function simpanSemakan(pengguna, p) {
 
   data.angkaGiliran = angka;
   data.emelPensyarah = pengguna.email;
+  data.namaPensyarah = pengguna.nama;
   data.fasaModerasi = skrip.fasaModerasi;
   data.markahPemeriksa = A;
   data.tarikhKemaskini = new Date();
@@ -495,6 +496,17 @@ function catatLog(email, tindakan, angka, status, mesej) {
 
 function berkaitan(pengguna, skrip) {
   return sama(skrip.emelPensyarah, pengguna.email) || sama(skrip.emelP1, pengguna.email) || sama(skrip.emelP2, pengguna.email);
+}
+
+/** Sampel Moderasi (Kelompok ...) dibuka kepada semua pensyarah. Kes Ekstrem hanya untuk P1/P2 yang dilantik. */
+function ialahSampel(skrip) {
+  return String(skrip.fasaModerasi || '').trim().indexOf('Kelompok') === 0;
+}
+
+function bolehSemak(pengguna, skrip) {
+  if (isAdmin(pengguna)) return true;
+  if (ialahSampel(skrip)) return true;
+  return sama(skrip.emelP1, pengguna.email) || sama(skrip.emelP2, pengguna.email);
 }
 
 function isAdmin(pengguna) {
