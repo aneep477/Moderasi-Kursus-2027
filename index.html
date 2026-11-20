@@ -373,6 +373,35 @@
             </div>
           </div>
 
+          <!-- TETAPAN RUBRIK (ADMIN/KJ) -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-100 bg-white flex justify-between items-center">
+              <div>
+                <h3 class="font-display font-bold text-slate-900 text-sm">Tetapan Perincian Rubrik</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">Admin menetapkan kriteria penskoran (kod, HP, perincian, markah). Jumlah tidak boleh melebihi 40.</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="tambahBarisRubrik()" class="text-xs font-bold bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-50 shadow-sm">+ Baris</button>
+                <button onclick="simpanRubrikAdmin()" id="btnSimpanRubrik" class="text-xs font-bold bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-lg shadow-sm">Simpan Rubrik</button>
+              </div>
+            </div>
+            <div class="overflow-x-auto bg-slate-50/30 p-4">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-900 text-white text-[11px]">
+                  <tr>
+                    <th class="px-3 py-2.5 font-bold w-24">Kod</th>
+                    <th class="px-3 py-2.5 font-bold w-24">HP</th>
+                    <th class="px-3 py-2.5 font-bold">Perincian Kriteria</th>
+                    <th class="px-3 py-2.5 font-bold w-24 text-center">Markah</th>
+                    <th class="px-3 py-2.5 font-bold w-20 text-center">Susunan</th>
+                    <th class="px-3 py-2.5 font-bold w-12 text-center"></th>
+                  </tr>
+                </thead>
+                <tbody id="jadualTetapanRubrik" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- PENETAPAN KATEGORI MANUAL SAMPEL MODERASI -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 bg-white">
@@ -445,7 +474,7 @@
     }
 
     // Versi frontend. Kemas kini nilai ini setiap kali index.html berubah.
-    const VERSI_FRONTEND = 'v6.1.3-konsep-p1-p2';
+    const VERSI_FRONTEND = 'v6.1.4-tetapan-rubrik';
     console.info('Sistem Moderasi MPU7011', VERSI_FRONTEND);
 
     let dbRubrik = [];
@@ -609,6 +638,7 @@
           binaPilihanPenapisAdmin();
           binaJadualLantikanModerator();
           binaJadualPemantauanP2();
+          binaJadualTetapanRubrik();
         }
         binaSenaraiKerjaPensyarah();
         binaPapanRingkasanPensyarah();
@@ -808,6 +838,52 @@
       panggilAPISelamat({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, token: dataSesi.token, angkaGiliran: angka, kategoriBaru: s.value })
       .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal simpan kategori: " + (res.message || "Ralat pelayan"), "error"); } })
       .catch(err => { s.disabled = false; tunjukToast("Ralat: " + err.message, "error"); });
+    }
+
+    /* ===== TETAPAN RUBRIK (ADMIN/KJ) ===== */
+    function binaJadualTetapanRubrik() {
+      const tbody = document.getElementById('jadualTetapanRubrik'); if(!tbody) return;
+      tbody.innerHTML = '';
+      if (dbRubrik.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">Tiada rubrik. Klik "+ Baris" untuk mula menetapkan kriteria penskoran.</td></tr>`;
+        return;
+      }
+      dbRubrik.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+        tr.innerHTML = `
+          <td class="px-3 py-2"><input type="text" value="${escHtml(r.kod)}" data-rk="kod" data-ri="${i}" class="w-full text-xs font-mono border border-slate-200 rounded p-1.5 bg-white"></td>
+          <td class="px-3 py-2"><input type="text" value="${escHtml(r.hp)}" data-rk="hp" data-ri="${i}" class="w-full text-xs font-bold border border-slate-200 rounded p-1.5 bg-white"></td>
+          <td class="px-3 py-2"><input type="text" value="${escHtml(r.perincian)}" data-rk="perincian" data-ri="${i}" class="w-full text-xs border border-slate-200 rounded p-1.5 bg-white"></td>
+          <td class="px-3 py-2"><input type="number" value="${escHtml(r.markah)}" min="0.5" step="0.5" data-rk="markah" data-ri="${i}" class="w-full text-xs font-bold text-center border border-slate-200 rounded p-1.5 bg-white"></td>
+          <td class="px-3 py-2"><input type="number" value="${escHtml(r.susunan || i + 1)}" min="1" step="1" data-rk="susunan" data-ri="${i}" class="w-full text-xs text-center border border-slate-200 rounded p-1.5 bg-white"></td>
+          <td class="px-3 py-2 text-center"><button onclick="buangBarisRubrik(${i})" class="text-red-600 font-bold hover:text-red-800 text-xs px-1.5 py-1 rounded hover:bg-red-50">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function tambahBarisRubrik() {
+      dbRubrik.push({ kod: 'kod_baharu_' + (dbRubrik.length + 1), hp: 'HP1', perincian: '', markah: 1, susunan: dbRubrik.length + 1 });
+      binaJadualTetapanRubrik();
+    }
+
+    function buangBarisRubrik(i) { dbRubrik.splice(i, 1); binaJadualTetapanRubrik(); }
+
+    function simpanRubrikAdmin() {
+      // Kumpul nilai terkini daripada input jadual
+      document.querySelectorAll('#jadualTetapanRubrik input[data-rk]').forEach(inp => {
+        const i = Number(inp.dataset.ri), k = inp.dataset.rk;
+        if (dbRubrik[i]) dbRubrik[i][k] = inp.value;
+      });
+      const btn = document.getElementById('btnSimpanRubrik'); if (btn) { btn.innerText = "Menyimpan..."; btn.disabled = true; }
+      panggilAPISelamat({ action: "simpanRubrik", adminEmail: dataSesi.email, token: dataSesi.token, rubrik: dbRubrik })
+      .then(res => {
+        if (btn) { btn.innerText = "Simpan Rubrik"; btn.disabled = false; }
+        if (res.status === "success") { tunjukToast(res.message, "success"); tarikDataDariSheets(); }
+        else { tunjukToast("Gagal simpan rubrik: " + (res.message || "Ralat pelayan"), "error"); }
+      })
+      .catch(err => { if (btn) { btn.innerText = "Simpan Rubrik"; btn.disabled = false; } tunjukToast("Ralat: " + err.message, "error"); });
     }
 
 
