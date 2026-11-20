@@ -285,15 +285,15 @@
               <div>
                 <label class="text-[11px] font-bold text-slate-500  block mb-1.5">Jenis Serahan</label>
                 <select id="lecUploadJenisKategori" onchange="tukarPilihanKategoriLecUpload()" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500">
-                  <option value="Sampel Moderasi">1 Sampel Moderasi (Wakil Kelas)</option>
-                  <option value="Kes Ekstrem Cemerlang">Kes Ekstrem Cemerlang (Skor Terpencil)</option>
+                  <option value="Sampel Moderasi">Sampel Moderasi (P1 — Admin sahaja)</option>
+                  <option value="Kes Ekstrem Cemerlang">Kes Ekstrem Cemerlang (P2 — Pensyarah)</option>
                 </select>
-                <p class="text-[10px] text-slate-400 mt-1.5 leading-snug">Sampel Moderasi (P1) dimuat naik oleh Admin/KJ — skrip kosong untuk disemak semua pensyarah. Kes Ekstrem (P2) disertakan markah pemeriksa asal.</p>
+                <p class="text-[10px] text-slate-400 mt-1.5 leading-snug">Sampel Moderasi (P1): skrip kosong dimuat naik oleh Admin — TIADA kelompok, semua pensyarah menyemak dan memberi markah masing-masing. Kes Ekstrem (P2): pensyarah muat naik bersama markah asal; admin/KJ/yang dilantik menyemak atas contengan pensyarah.</p>
               </div>
 
-              <!-- Pilihan Kelompok Sampel khusus untuk 1 Sampel Moderasi -->
-              <div id="containerSubKelompokLec">
-                <label class="text-[11px] font-bold text-slate-500  block mb-1.5">Kelompok Sampel Moderasi</label>
+              <!-- Kelompok khusus untuk Kes Ekstrem Cemerlang (P2) -->
+              <div id="containerSubKelompokLec" class="hidden">
+                <label class="text-[11px] font-bold text-slate-500  block mb-1.5">Kelompok Moderasi</label>
                 <select id="lecUploadSubKelompok" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500">
                   <option value="Kelompok Tinggi">Kelompok Tinggi</option>
                   <option value="Kelompok Sederhana" selected>Kelompok Sederhana</option>
@@ -474,7 +474,7 @@
     }
 
     // Versi frontend. Kemas kini nilai ini setiap kali index.html berubah.
-    const VERSI_FRONTEND = 'v6.1.4-tetapan-rubrik';
+    const VERSI_FRONTEND = 'v6.1.5-konsep-p1p2-betul';
     console.info('Sistem Moderasi MPU7011', VERSI_FRONTEND);
 
     let dbRubrik = [];
@@ -819,10 +819,11 @@
           <td class="px-4 py-3 text-center font-mono font-bold">${skrip.markahPemeriksa || '-'}</td>
           <td class="px-4 py-3">
             <select id="selKat_${skrip.angkaGiliran}" class="w-full text-xs border border-slate-200 rounded-lg p-2 font-bold bg-slate-50">
+              <option value="Sampel Moderasi" ${kat === 'Sampel Moderasi' ? 'selected' : ''}>Sampel Moderasi (P1)</option>
+              <option value="Kes Ekstrem Cemerlang" ${kat.includes('Ekstrem') ? 'selected' : ''}>Kes Ekstrem Cemerlang (P2)</option>
               <option value="Kelompok Tinggi" ${kat === 'Kelompok Tinggi' ? 'selected' : ''}>Kelompok Tinggi</option>
-              <option value="Kelompok Sederhana" ${(kat === 'Kelompok Sederhana' || (!kat.includes('Tinggi') && !kat.includes('Rendah') && !kat.includes('Ekstrem'))) ? 'selected' : ''}>Kelompok Sederhana</option>
+              <option value="Kelompok Sederhana" ${(kat === 'Kelompok Sederhana' || (!kat.includes('Tinggi') && !kat.includes('Rendah') && !kat.includes('Ekstrem') && !kat.includes('Sampel'))) ? 'selected' : ''}>Kelompok Sederhana</option>
               <option value="Kelompok Rendah" ${kat === 'Kelompok Rendah' ? 'selected' : ''}>Kelompok Rendah</option>
-              <option value="Kes Ekstrem Cemerlang" ${kat.includes('Ekstrem') ? 'selected' : ''}>Kes Ekstrem Cemerlang</option>
             </select>
           </td>
           <td class="px-4 py-3 text-center">
@@ -1105,11 +1106,12 @@
       const userEmail = (dataSesi.email || '').toLowerCase();
       const isAdminKJ = semakStatusAdmin();
 
-      // P1 (Sampel Moderasi) = skrip Kelompok yang dimuat naik admin/KJ.
-      // P2 (Serahan Skrip) = Kes Ekstrem Cemerlang daripada pensyarah.
+      // P1 (Sampel Moderasi) = skrip kosong dari admin, semua pensyarah semak.
+      // P2 (Serahan Skrip) = Kes Ekstrem Cemerlang, pensyarah muat naik, admin/KJ/lantikan conteng.
       const skripRelevan = dbSkripInduk.filter(s => {
-        const f = String(s.fasaModerasi || '');
-        if (fasaSemasa === 'P1') return f.indexOf('Kelompok') === 0 || f === '' || f.indexOf('Sampel') !== -1;
+        const f = String(s.fasaModerasi || '').trim();
+        const sampel = f === 'Sampel Moderasi' || f.indexOf('Kelompok') === 0;
+        if (fasaSemasa === 'P1') return sampel;
         return f.indexOf('Ekstrem') !== -1;
       });
 
@@ -1243,7 +1245,7 @@
       
       lakaranOrangLain = {}; ulasanOrangLain = {}; lakaranSesiIni = {}; ulasanSemuaHalaman = {}; pdfDoc = null; pageNum = 1;
 
-      const sampelIni = String(skrip.fasaModerasi || '').indexOf('Kelompok') === 0;
+      const sampelIni = String(skrip.fasaModerasi || '').trim() === 'Sampel Moderasi' || String(skrip.fasaModerasi || '').trim().indexOf('Kelompok') === 0;
       const rekodSkripIni = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
       for (const r of rekodSkripIni) {
         if(r.dataLakaran) {
@@ -1477,7 +1479,8 @@
       const subContainer = document.getElementById('containerSubKelompokLec');
       if (!subContainer) return;
 
-      if (jenis === 'Sampel Moderasi') {
+      // Kelompok hanya untuk Kes Ekstrem (P2). Sampel Moderasi (P1) tiada kelompok.
+      if (jenis === 'Kes Ekstrem Cemerlang') {
         subContainer.classList.remove('hidden');
       } else {
         subContainer.classList.add('hidden');
@@ -1492,10 +1495,12 @@
       const subKelompok = document.getElementById('lecUploadSubKelompok')?.value;
       const btn = document.getElementById('btnLecUpload');
 
-      // Tentukan kategori sebenar yang akan disimpan
+      // Sampel Moderasi (P1): fasa = 'Sampel Moderasi' (tiada kelompok, semua pensyarah semak).
+      // Kes Ekstrem (P2): fasa = 'Kes Ekstrem Cemerlang' + kelompok pilihan pensyarah.
       let fasaDisimpan = jenisKat;
-      if (jenisKat === 'Sampel Moderasi') {
-        fasaDisimpan = subKelompok || 'Kelompok Sederhana';
+      let kelompokDisimpan = '';
+      if (jenisKat === 'Kes Ekstrem Cemerlang') {
+        kelompokDisimpan = subKelompok || 'Kelompok Sederhana';
       }
 
       // Sampel Moderasi (P1) ialah muat naik admin/KJ sahaja — skrip kosong tanpa markah.
@@ -1520,6 +1525,7 @@
             namaPensyarah: dataSesi.nama,
           angkaGiliran: studentId,
           fasaModerasi: fasaDisimpan,
+          kumpulan: kelompokDisimpan,
           markahPemeriksa: markahA,
           fileData: e.target.result
         }).then(res => {
